@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon"
+        href="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2048px-Spotify_logo_without_text.svg.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        crossorigin="anonymous" />
+    <title>Spotify Clone</title>
+    <style>
+        :root {
+            /* Dark mode colors (default) */
+            --bg-primary: #000;
+            --bg-secondary: #121212;
+            --bg-tertiary: #181818;
+            --bg-quaternary: #242424;
+            --bg-hover: #282828;
+            --bg-nav-btn: #090909;
+            --bg-nav-btn-hover: #1a1a1a;
+            --bg-search: #1f1f1f;
+            --bg-search-focus: #2a2a2a;
+            --text-primary: #fff;
+            --text-secondary: #b3b3b3;
+            --border-color: #727272;
+            --accent-color: #1db954;
+        }
+
+        [data-theme="light"] {
+            /* Light mode colors */
+            --bg-primary: #fff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --bg-quaternary: #dee2e6;
+            --bg-hover: #ced4da;
+            --bg-nav-btn: #e9ecef;
+            --bg-nav-btn-hover: #dee2e6;
+            --bg-search: #f8f9fa;
+            --bg-search-focus: #e9ecef;
+            --text-primary: #212529;
+            --text-secondary: #495057;
+            --border-color: #adb5bd;
+            --accent-color: #1db954;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Toggle Switch Styles */
+        .theme-toggle {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+            margin-right: 16px;
+        }
+
+        .theme-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-tertiary);
+            border-radius: 30px;
+            border: 2px solid var(--border-color);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 2px;
+            bottom: 2px;
+            background-color: var(--text-primary);
+            border-radius: 50%;
+        }
+
+        .theme-toggle input:checked+.toggle-slider {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .theme-toggle input:checked+.toggle-slider:before {
+            transform: translateX(28px);
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px;
+            background-color: var(--bg-primary);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 64px;
+        }
+
+        .left-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .navbar .logo img {
+            height: 40px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background-color: var(--bg-nav-btn);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .nav-btn:hover {
+            background-color: var(--bg-nav-btn-hover);
+        }
+
+        .nav-btn i {
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .nav-btn:hover i {
+            color: var(--text-primary);
+        }
+
+        .nav-btn.active {
+            background-color: var(--bg-tertiary);
+        }
+
+        .nav-btn.active i {
+            color: var(--text-primary);
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            max-width: 364px;
+            margin: 0 16px;
+            position: relative;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 48px 12px 40px;
+            border: none;
+            border-radius: 500px;
+            background-color: var(--bg-search);
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            border: 2px solid transparent;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search-bar input:focus {
+            background-color: var(--bg-search-focus);
+            border: 2px solid var(--text-primary);
+        }
+
+        .search-bar input:focus+i {
+            color: var(--text-primary);
+        }
+
+        .right-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .right-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background-color: transparent;
+            color: var(--text-secondary);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+
+        .right-buttons button:hover {
+            color: var(--text-primary);
+            border-color: var(--text-primary);
+            transform: scale(1.04);
+        }
+
+        .user-profile {
+            background-color: var(--bg-nav-btn);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .user-profile:hover {
+            background-color: var(--bg-nav-btn-hover);
+        }
+
+        .user-profile i {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .user-profile:hover i {
+            color: var(--text-primary);
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background-color: var(--bg-nav-btn);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .mobile-menu-btn:hover {
+            background-color: var(--bg-nav-btn-hover);
+        }
+
+        .mobile-menu-btn i {
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .mobile-menu-btn:hover i {
+            color: var(--text-primary);
+        }
+
+        /* Mobile Bottom Navigation */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 8px 0;
+            z-index: 1000;
+        }
+
+        .bottom-nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-decoration: none;
+        }
+
+        .bottom-nav-item.active {
+            color: var(--text-primary);
+        }
+
+        .bottom-nav-item i {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-secondary);
+            position: fixed;
+            left: 0;
+            top: 64px;
+            bottom: 0;
+            z-index: 999;
+            padding: 20px;
+            overflow-y: auto;
+            border-radius: 8px;
+            margin: 8px;
+
+        }
+
+        .sidebar.collapsed {
+            width: 72px;
+            padding: 20px 12px;
+        }
+
+        .sidebar.collapsed .sidebar-navbar ul li a span,
+        .sidebar.collapsed .sidebar-scrollbar,
+        .sidebar.collapsed .create-playlist {
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-navbar ul li a {
+            justify-content: center;
+        }
+
+        .sidebar.collapsed .sidebar-navbar ul li a i {
+            margin-right: 0;
+        }
+
+        .sidebar-navbar ul {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-navbar ul li {
+            margin-bottom: 16px;
+        }
+
+        .sidebar-navbar ul li a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            cursor: pointer;
+        }
+
+        .sidebar-navbar ul li a:hover {
+            color: var(--text-primary);
+        }
+
+        .sidebar-navbar ul li a i {
+            font-size: 24px;
+            margin-right: 16px;
+            width: 24px;
+        }
+
+        .library {
+            margin-left: auto;
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        .sidebar-scrollbar {
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: transparent transparent;
+        }
+
+        .sidebar-scrollbar:hover {
+            scrollbar-color: transparent transparent;
+        }
+
+        .sidebar-scrollbar::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .sidebar-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-scrollbar::-webkit-scrollbar-thumb {
+            background: transparent;
+            border-radius: 6px;
+        }
+
+        .sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
+            background: var(--text-secondary);
+        }
+
+        .create-playlist {
+            background: var(--bg-quaternary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .create-playlist h4 {
+            color: var(--text-primary);
+            font-size: 16px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .create-playlist p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .create-playlist button {
+            padding: 8px 16px;
+            border: none;
+            outline: none;
+            border-radius: 20px;
+            background-color: var(--text-primary);
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Mobile Sidebar */
+        .mobile-sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100vh;
+            background-color: var(--bg-secondary);
+            z-index: 1001;
+            padding: 20px;
+            overflow-y: auto;
+             
+        }
+
+        .mobile-sidebar.open {
+            left: 0;
+        }
+
+        .mobile-sidebar-header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        .mobile-sidebar-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .mobile-sidebar-close:hover {
+            color: var(--text-primary);
+        }
+
+        .mobile-menu-content {
+            display: none;
+            /* Hidden by default, shown on mobile */
+            flex-direction: column;
+        }
+
+        .mobile-menu-section {
+            margin-bottom: 20px;
+        }
+
+        .mobile-menu-item {
+            margin-bottom: 24px;
+        }
+
+        .mobile-menu-item a {
+            color: var(--text-primary);
+            font-size: 24px;
+            font-weight: 700;
+            text-decoration: none;
+            display: block;
+            padding: 8px 0;
+        }
+
+        .mobile-menu-item a:hover {
+            color: var(--accent-color);
+        }
+
+        .mobile-menu-divider {
+            width: 40px;
+            height: 1px;
+            background-color: var(--text-secondary);
+            margin: 30px 0;
+        }
+
+        .desktop-sidebar-content {
+            display: block;
+            /* Shown by default for desktop */
+        }
+
+
+
+
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+              
+        }
+
+        .mobile-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Main Section Styles */
+        .main-section {
+            margin-left: 288px;
+            margin-top: 72px;
+            padding: 24px;
+            background: var(--bg-primary);
+            min-height: calc(100vh - 80px);
+            border-radius: 8px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+
+        }
+
+        .sidebar.collapsed~.main-section {
+            margin-left: 80px;
+        }
+
+        .spotify-playlist {
+            padding: 0;
+        }
+
+        .spotify-playlist h2 {
+            color: var(--text-primary);
+            font-size: 24px;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+
+        .card-container.horizontal-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 16px;
+            padding-bottom: 16px;
+            margin-bottom: 40px;
+        }
+
+        .card-container.horizontal-scroll::-webkit-scrollbar {
+            height: 12px;
+        }
+
+        .card-container.horizontal-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .card-container.horizontal-scroll::-webkit-scrollbar-thumb {
+            scrollbar-color: transparent transparent;
+            border-radius: 6px;
+        }
+
+        .card {
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            border-radius: 8px;
+            text-align: left;
+            flex: 0 0 180px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .card img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        .card h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            display: -webkit-box;
+            overflow: hidden;
+        }
+
+        /* Artist images should be circular */
+        .artist-section .card img {
+            border-radius: 50%;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px 40px;
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        .footer-column {
+            flex: 1;
+            margin-right: 40px;
+        }
+
+        .footer-column:last-child {
+            margin-right: 0;
+        }
+
+        .footer-column h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .footer-column ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .footer-column ul li:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-social {
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-social a {
+            margin-left: 10px;
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .footer-social a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-social a:first-child {
+            margin-left: 0;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 8px 16px;
+            }
+
+            .search-bar {
+                display: none;
+            }
+
+            .right-buttons button:not(.nav-btn):not(.user-profile) {
+                display: none;
+            }
+
+            .theme-toggle {
+                width: 50px;
+                height: 25px;
+                margin-right: 8px;
+            }
+
+            .toggle-slider:before {
+                height: 18px;
+                width: 18px;
+            }
+
+            .theme-toggle input:checked+.toggle-slider:before {
+                transform: translateX(23px);
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main-section {
+                margin-left: 0;
+                margin-top: 64px;
+                margin-right: 0;
+                margin-bottom: 80px;
+                padding: 16px;
+                border-radius: 0;
+            }
+
+            .bottom-nav {
+                display: block;
+            }
+
+            .card {
+                flex: 0 0 140px;
+                padding: 12px;
+            }
+
+            .card h4 {
+                font-size: 14px;
+            }
+
+            .card p {
+                font-size: 12px;
+            }
+
+            .spotify-playlist h2 {
+                font-size: 20px;
+                margin-bottom: 16px;
+            }
+
+            .footer {
+                flex-direction: column;
+                padding: 20px 16px;
+            }
+
+            .footer-column {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+
+            .footer-column:last-child {
+                margin-bottom: 0;
+            }
+
+            .footer-social {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 8px 12px;
+            }
+
+            .main-section {
+                padding: 12px;
+            }
+
+            .card {
+                flex: 0 0 120px;
+                padding: 10px;
+            }
+
+            .card h4 {
+                font-size: 13px;
+                margin-bottom: 6px;
+            }
+
+            .card p {
+                font-size: 11px;
+            }
+
+            .spotify-playlist h2 {
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+
+            .card-container.horizontal-scroll {
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="left-section">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="logo">
+                <img src="images/logo-new.png" alt="Spotify Logo">
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-btn active">
+                    <i class="fa-solid fa-house"></i>
+                </button>
+            </div>
+        </div>
+        <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="What do you want to play?">
+        </div>
+        <div class="right-buttons">
+            <label class="theme-toggle">
+                <input type="checkbox" id="themeToggle">
+                <span class="toggle-slider"></span>
+            </label>
+            <button>Explore Premium</button>
+            <button>Install App</button>
+            <button class="nav-btn">
+                <i class="fa-solid fa-bell"></i>
+            </button>
+            <button class="user-profile">
+                <i class="fa-solid fa-user"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <div class="mobile-sidebar" id="mobileSidebar">
+        <div class="mobile-sidebar-header">
+            <button class="mobile-sidebar-close" id="mobileSidebarClose">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        
+        <div class="desktop-sidebar-content">
+            <div class="sidebar-navbar">
+                <ul>
+                    <li>
+                        <a href="#"><i class="fa-regular fa-bookmark"></i> <span>Your Library</span> <span
+                                class="library">+</span></a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-scrollbar">
+                <div class="create-playlist">
+                    <h4>Create your first playlist</h4>
+                    <p>It's easy, we'll help you</p>
+                    <button>Create Playlist</button>
+                </div>
+                <div class="create-playlist">
+                    <h4>Let's find some podcasts to follow</h4>
+                    <p>We'll keep you updated on new episodes</p>
+                    <button>Browse podcasts</button>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-item">
+                    <a href="#">Log in</a>
+                </div>
+                <div class="mobile-menu-item">
+                    <a href="#">Sign up</a>
+                </div>
+            </div>
+
+            <div class="mobile-menu-divider"></div>
+
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-item">
+                    <a href="#">Premium</a>
+                </div>
+                <div class="mobile-menu-item">
+                    <a href="#">Help</a>
+                </div>
+                <div class="mobile-menu-item">
+                    <a href="#">Download</a>
+                </div>
+                <div class="mobile-menu-item">
+                    <a href="#">Privacy</a>
+                </div>
+                <div class="mobile-menu-item">
+                    <a href="#">Terms</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-navbar">
+            <ul>
+                <li>
+                    <a href="#" id="sidebarToggle"><i class="fa-regular fa-bookmark"></i> <span>Your Library</span>
+                        <span class="library">+</span></a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-scrollbar">
+            <div class="create-playlist">
+                <h4>Create your first playlist</h4>
+                <p>It's easy, we'll help you</p>
+                <button>Create Playlist</button>
+            </div>
+            <div class="create-playlist">
+                <h4>Let's find some podcasts to follow</h4>
+                <p>We'll keep you updated on new episodes</p>
+                <button>Browse podcasts</button>
+            </div>
+        </div>
+    </div>
+
+   
+    <div class="bottom-nav">
+        <div class="bottom-nav-items">
+            <a href="#" class="bottom-nav-item active">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            <a href="#" class="bottom-nav-item">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Search</span>
+            </a>
+            <a href="#" class="bottom-nav-item">
+                <i class="fa-solid fa-book"></i>
+                <span>Your Library</span>
+            </a>
+            <a href="#" class="bottom-nav-item">
+                <i class="fa-solid fa-crown"></i>
+                <span>Premium</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Section -->
+    <div class="main-section">
+        <div class="spotify-playlist">
+            <h2>Popular Radio</h2>
+            <div class="card-container horizontal-scroll">
+                
+                <div class="card">
+                    <img src="images/radio/image_1.jpg" alt="Radio 1">
+                    <h4>Radio 1</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_2.jpg" alt="Radio 2">
+                    <h4>Radio 2</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_3.jpg" alt="Radio 3">
+                    <h4>Radio 3</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_4.jpg" alt="Radio 4">
+                    <h4>Radio 4</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_5.jpg" alt="Radio 5">
+                    <h4>Radio 5</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_6.jpg" alt="Radio 6">
+                    <h4>Radio 6</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_7.jpg" alt="Radio 7">
+                    <h4>Radio 7</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_8.jpg" alt="Radio 8">
+                    <h4>Radio 8</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_9.jpg" alt="Radio 9">
+                    <h4>Radio 9</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_10.jpg" alt="Radio 10">
+                    <h4>Radio 10</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_11.jpg" alt="Radio 11">
+                    <h4>Radio 11</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_12.jpg" alt="Radio 12">
+                    <h4>Radio 12</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_13.jpg" alt="Radio 13">
+                    <h4>Radio 13</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_14.jpg" alt="Radio 14">
+                    <h4>Radio 14</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_15.jpg" alt="Radio 15">
+                    <h4>Radio 15</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_16.jpg" alt="Radio 16">
+                    <h4>Radio 16</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_17.jpg" alt="Radio 17">
+                    <h4>Radio 17</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_18.jpg" alt="Radio 18">
+                    <h4>Radio 18</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_19.jpg" alt="Radio 19">
+                    <h4>Radio 19</h4>
+                    <p>Station</p>
+                </div>
+                <div class="card">
+                    <img src="images/radio/image_20.jpg" alt="Radio 20">
+                    <h4>Radio 20</h4>
+                    <p>Station</p>
+                </div>
+            </div>
+
+            <h2>Popular Songs</h2>
+            <div class="card-container horizontal-scroll">
+                
+                <div class="card">
+                    <img src="images/song/image_41.jpg" alt="Song 1">
+                    <h4>Song 1</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_42.jpg" alt="Song 2">
+                    <h4>Song 2</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_43.jpg" alt="Song 3">
+                    <h4>Song 3</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_44.jpg" alt="Song 4">
+                    <h4>Song 4</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_45.jpg" alt="Song 5">
+                    <h4>Song 5</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_46.jpg" alt="Song 6">
+                    <h4>Song 6</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_47.jpg" alt="Song 7">
+                    <h4>Song 7</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_48.jpg" alt="Song 8">
+                    <h4>Song 8</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_49.jpg" alt="Song 9">
+                    <h4>Song 9</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_50.jpg" alt="Song 10">
+                    <h4>Song 10</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_51.jpg" alt="Song 11">
+                    <h4>Song 11</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_52.jpg" alt="Song 12">
+                    <h4>Song 12</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_53.jpg" alt="Song 13">
+                    <h4>Song 13</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_54.jpg" alt="Song 14">
+                    <h4>Song 14</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_55.jpg" alt="Song 15">
+                    <h4>Song 15</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_56.jpg" alt="Song 16">
+                    <h4>Song 16</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_57.jpg" alt="Song 17">
+                    <h4>Song 17</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_58.jpg" alt="Song 18">
+                    <h4>Song 18</h4>
+                    <p>Artist</p>
+                </div>
+                <div class="card">
+                    <img src="images/song/image_59.jpg" alt="Song 19">
+                    <h4>Song 19</h4>
+                    <p>Artist</p>
+                </div>
+            </div>
+
+            <h2>Popular Artists</h2>
+            <div class="card-container horizontal-scroll artist-section">
+                
+                <div class="card">
+                    <img src="images/artist/image_21.jpg" alt="Artist 1">
+                    <h4>Artist 1</h4>
+                    <p>Singer</p>
+                </div>
+                <div class="card">
+                    <img src="images/artist/image_23.jpg" alt="Artist 3">
+                    <h4>Artist 2</h4>
+                    <p>Singer</p>
+                </div>
+                <div class="card">
+                    <img src="images/artist/image_24.jpg" alt="Artist 4">
+                    <h4>Artist 3</h4>
+                    <p>Singer</p>
+                </div>
+                <div class="card">
+                    <img src="images/artist/image_29.jpg" alt="Artist 9">
+                    <h4>Artist 4</h4>
+                    <p>Singer</p>
+                </div>
+                <div class="card">
+                    <img src="images/artist/image_30.jpg" alt="Artist 10">
+                    <h4>Artist 5</h4>
+                    <p>Singer</p>
+                </div>
+                <div class="card">
+                    <img src="images/artist/image_32.jpg" alt="Artist 12">
+                    <h4>Artist 6</h4>
+                    <p>Singer</p>
+                </div>
+                <div class="card">
+                    <img src="images/artist/image_33.jpg" alt="Artist 13">
+                    <h4>Artist 7</h4>
+                    <p>Singer</p>
+                </div>
+                <div class="card">
+                    <img src="images/artist/image_35.jpg" alt="Artist 15">
+                    <h4>Artist 8</h4>
+                    <p>Singer</p>
+                </div>
+                <div class="card">
+                    <img src="images/artist/image_38.jpg" alt="Artist 18">
+                    <h4>Artist 9</h4>
+                    <p>Singer</p>
+                </div>
+                <div class="card">
+                    <img src="images/artist/image_39.jpg" alt="Artist 19">
+                    <h4>Artist 10</h4>
+                    <p>Singer</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-column">
+                <h4>Company</h4>
+                <ul>
+                    <li>About</li>
+                    <li>Jobs</li>
+                    <li>For the Record</li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Communities</h4>
+                <ul>
+                    <li>For Artists</li>
+                    <li>Developers</li>
+                    <li>Advertising</li>
+                    <li>Investors</li>
+                    <li>Vendors</li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Useful links</h4>
+                <ul>
+                    <li>Support</li>
+                    <li>Free Mobile App</li>
+                    <li>Popular by Country</li>
+                    <li>Import your music</li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Spotify Plans</h4>
+                <ul>
+                    <li>Premium</li>
+                    <li>Individual</li>
+                    <li>Premium Duo</li>
+                    <li>Premium Family</li>
+                    <li>Premium Student</li>
+                    <li>Spotify Free</li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-facebook"></i></a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const defaultTheme = 'dark';
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const mainSection = document.querySelector('.main-section');
+
+        
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileSidebar = document.getElementById('mobileSidebar');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const mobileSidebarClose = document.getElementById('mobileSidebarClose');
+
+        function toggleTheme() {
+            if (themeToggle.checked) {
+                body.setAttribute('data-theme', 'light');
+
+            } else {
+                body.removeAttribute('data-theme');
+
+            }
+        }
+
+        function toggleSidebar(event) {
+            event.preventDefault();
+            sidebar.classList.toggle('collapsed');
+        }
+
+        function openMobileSidebar() {
+            mobileSidebar.classList.add('open');
+            mobileOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            
+            if (window.innerWidth <= 768) {
+                showMobileContent();
+            } else {
+                showDesktopContent();
+            }
+        }
+
+        function closeMobileSidebar() {
+            mobileSidebar.classList.remove('open');
+            mobileOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function showMobileContent() {
+            const desktopContent = mobileSidebar.querySelector('.desktop-sidebar-content');
+            const mobileContent = mobileSidebar.querySelector('.mobile-menu-content');
+
+            if (desktopContent) desktopContent.style.display = 'none';
+            if (mobileContent) mobileContent.style.display = 'flex';
+        }
+
+        function showDesktopContent() {
+            const desktopContent = mobileSidebar.querySelector('.desktop-sidebar-content');
+            const mobileContent = mobileSidebar.querySelector('.mobile-menu-content');
+
+            if (desktopContent) desktopContent.style.display = 'block';
+            if (mobileContent) mobileContent.style.display = 'none';
+        }
+
+        const mobileContent = mobileSidebar.querySelector('.mobile-menu-content');
+
+
+
+        const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+
+        bottomNavItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                bottomNavItems.forEach(navItem => navItem.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        themeToggle.addEventListener('change', toggleTheme);
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', toggleSidebar);
+        }
+
+        // Mobile menu event listeners
+        mobileMenuBtn.addEventListener('click', openMobileSidebar);
+        mobileSidebarClose.addEventListener('click', closeMobileSidebar);
+        mobileOverlay.addEventListener('click', closeMobileSidebar);
+
+
+    </script>
+</body>
+
+</html>
